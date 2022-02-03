@@ -4,7 +4,6 @@
 // init project
 var express = require('express');
 var app = express();
-var timestamp = require('./timestamp');
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC
@@ -36,15 +35,16 @@ app.use(express.static(__dirname + '/public'));
 app.get('/api/:date', function (req, res) {
 	let date = req.params.date;
 	if (date.match(/^[0-9]+$/)) {
-		let utcTime = new Date(parseInt(date));
+		let unixTime = parseInt(date);
+		let utcTime = new Date(unixTime);
 		let utcTimeString = utcTime.toUTCString();
 		res.json({
-			unix: date,
+			unix: unixTime,
 			utc: utcTimeString,
 		});
 	}
 	// If date is a string
-	else if (date.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)) {
+	else if (date.match(/(\d|\w)+-\w+-\d+/)) {
 		let unixTime = new Date(date).getTime();
 		let utcTime = new Date(date).toUTCString();
 		res.json({
