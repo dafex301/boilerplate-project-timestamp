@@ -33,37 +33,30 @@ app.use(express.static(__dirname + '/public'));
 
 // Chain middleware to create timestamp
 app.get('/api/:date', function (req, res) {
-	let date = req.params.date;
-	if (date.match(/^[0-9]+$/)) {
-		let unixTime = parseInt(date);
-		let utcTime = new Date(unixTime);
-		let utcTimeString = utcTime.toUTCString();
-		res.json({
-			unix: unixTime,
-			utc: utcTimeString,
+	const dateStr = req.params.date;
+	// check if parameter is a number using regex
+	if (/^\d+$/.test(dateStr)) {
+		console.log('hello');
+		const time = parseInt(dateStr);
+		return res.json({
+			unix: time,
+			utc: new Date(time).toUTCString(),
 		});
 	}
-	// If date is a string
-	else if (date.match(/(\d|\w)+-\w+-\d+/)) {
-		let unixTime = new Date(date).getTime();
-		let utcTime = new Date(date).toUTCString();
-		res.json({
-			unix: unixTime,
-			utc: utcTime,
+	// check if date is ISO 8601 format
+	if (!isNaN(Date.parse(dateStr))) {
+		const time = Date.parse(dateStr);
+		return res.json({
+			unix: time,
+			utc: new Date(time).toUTCString(),
 		});
 	}
-	// If date is invalid
-	else {
-		res.json({
-			error: 'Invalid Date',
-		});
-	}
+	return res.status(400).json({ error: 'Invalid Date' });
 });
 
 app.get('/api', function (req, res) {
-	let unixTimeNow = new Date().getTime();
-	let utcTimeNow = new Date().toUTCString();
-	res.json({ unix: unixTimeNow, utc: utcTimeNow });
+	let timeNow = new Date();
+	res.json({ unix: timeNow.getTime(), utc: timeNow.toUTCString() });
 });
 
 // listen for requests :)
